@@ -12,9 +12,4 @@
       "dest": "/api/index.ts"
     }
   ],
-  "env": {
-    "SUPABASE_URL": "@bidiq-supabase-url",
-    "SUPABASE_SERVICE_ROLE_KEY": "@bidiq-supabase-service-role-key",
-    "ALLOWED_ORIGINS": "@bidiq-allowed-origins"
-  }
 }

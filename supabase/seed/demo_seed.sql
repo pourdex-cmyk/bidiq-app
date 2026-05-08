@@ -38,7 +38,7 @@ INSERT INTO users (id, org_id, email, full_name, role) VALUES
 INSERT INTO properties (id, org_id, name, address, city, state, zip, property_type, status, unit_count, purchase_price, purchase_date, current_value, yardi_property_id, created_by) VALUES
   (v_prop1, v_org_id, 'South End Triplex', '142 Tremont St', 'Boston', 'MA', '02111', 'multi_family', 'under_renovation', 3, 1200000, '2024-03-15', 1650000, 'YRD-P001', v_admin_id),
   (v_prop2, v_org_id, 'Dorchester 6-Unit', '89 Bowdoin Ave', 'Boston', 'MA', '02121', 'multi_family', 'active', 6, 950000, '2023-08-01', 1150000, 'YRD-P002', v_admin_id),
-  (v_prop3, v_org_id, 'Somerville Mixed Use', '401 Highland Ave', 'Somerville', 'MA', '02144', 'mixed_use', 'planning', 4, 1450000, '2025-01-10', 1450000, 'YRD-P003', v_admin_id);
+  (v_prop3, v_org_id, 'Somerville Mixed Use', '401 Highland Ave', 'Somerville', 'MA', '02144', 'mixed_use', 'active', 4, 1450000, '2025-01-10', 1450000, 'YRD-P003', v_admin_id);
 
 -- Units for South End Triplex
 INSERT INTO units (org_id, property_id, unit_number, bedrooms, bathrooms, square_feet, status, current_rent, market_rent, yardi_unit_id) VALUES

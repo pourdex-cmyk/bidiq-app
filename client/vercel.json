@@ -22,9 +22,4 @@
       ]
     }
   ],
-  "env": {
-    "VITE_SUPABASE_URL": "@bidiq-supabase-url",
-    "VITE_SUPABASE_ANON_KEY": "@bidiq-supabase-anon-key",
-    "VITE_API_URL": "@bidiq-api-url"
-  }
 }
