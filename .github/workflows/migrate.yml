@@ -25,10 +25,10 @@ jobs:
           const seed = fs.readFileSync('supabase/seed/_phase2.sql', 'utf8');
 
           const client = new Client({
-            host: 'db.zzceddacoumhainuvwtr.supabase.co',
+            host: 'aws-0-us-east-1.pooler.supabase.com',
             port: 5432,
             database: 'postgres',
-            user: 'postgres',
+            user: 'postgres.zzceddacoumhainuvwtr',
             password: process.env.SUPABASE_DB_PASSWORD,
             ssl: { rejectUnauthorized: false }
           });
