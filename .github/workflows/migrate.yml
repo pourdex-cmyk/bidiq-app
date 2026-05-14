@@ -1,0 +1,53 @@
+name: Run DB Migrations
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    name: Apply Missing Migrations & Seed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pg client
+        run: npm install pg
+
+      - name: Run migrations and seed
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          node -e "
+          const { Client } = require('pg');
+          const fs = require('fs');
+
+          const migrations = fs.readFileSync('supabase/migrations/_combined.sql', 'utf8');
+          const seed = fs.readFileSync('supabase/seed/_phase2.sql', 'utf8');
+
+          const client = new Client({
+            host: 'db.zzceddacoumhainuvwtr.supabase.co',
+            port: 5432,
+            database: 'postgres',
+            user: 'postgres',
+            password: process.env.SUPABASE_DB_PASSWORD,
+            ssl: { rejectUnauthorized: false }
+          });
+
+          async function run() {
+            await client.connect();
+            console.log('Connected to Supabase');
+
+            console.log('Running migrations...');
+            await client.query(migrations);
+            console.log('Migrations complete');
+
+            console.log('Running seed...');
+            await client.query(seed);
+            console.log('Seed complete');
+
+            await client.end();
+            console.log('Done');
+          }
+
+          run().catch(e => { console.error(e.message); process.exit(1); });
+          "
