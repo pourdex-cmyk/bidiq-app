@@ -10,44 +10,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install pg client
-        run: npm install pg
+      - name: Install postgresql client
+        run: sudo apt-get install -y postgresql-client
 
       - name: Run migrations and seed
         env:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
-          node -e "
-          const { Client } = require('pg');
-          const fs = require('fs');
+          # Try each known Supabase pooler region until one connects
+          for HOST in \
+            aws-0-us-east-1.pooler.supabase.com \
+            aws-0-us-west-1.pooler.supabase.com \
+            aws-0-eu-central-1.pooler.supabase.com \
+            aws-0-ap-southeast-1.pooler.supabase.com; do
+            echo "Trying $HOST..."
+            if psql "postgresql://postgres.zzceddacoumhainuvwtr:${SUPABASE_DB_PASSWORD}@${HOST}:5432/postgres?sslmode=require" -c "SELECT 1" 2>/dev/null; then
+              echo "Connected via $HOST"
+              PGHOST=$HOST
+              break
+            fi
+          done
 
-          const migrations = fs.readFileSync('supabase/migrations/_combined.sql', 'utf8');
-          const seed = fs.readFileSync('supabase/seed/_phase2.sql', 'utf8');
+          if [ -z "$PGHOST" ]; then
+            echo "All pooler regions failed — trying direct host"
+            PGHOST="db.zzceddacoumhainuvwtr.supabase.co"
+            PGUSER="postgres"
+          else
+            PGUSER="postgres.zzceddacoumhainuvwtr"
+          fi
 
-          const client = new Client({
-            host: 'aws-0-us-east-1.pooler.supabase.com',
-            port: 5432,
-            database: 'postgres',
-            user: 'postgres.zzceddacoumhainuvwtr',
-            password: process.env.SUPABASE_DB_PASSWORD,
-            ssl: { rejectUnauthorized: false }
-          });
-
-          async function run() {
-            await client.connect();
-            console.log('Connected to Supabase');
-
-            console.log('Running migrations...');
-            await client.query(migrations);
-            console.log('Migrations complete');
-
-            console.log('Running seed...');
-            await client.query(seed);
-            console.log('Seed complete');
-
-            await client.end();
-            console.log('Done');
-          }
-
-          run().catch(e => { console.error(e.message); process.exit(1); });
-          "
+          CONN="postgresql://${PGUSER}:${SUPABASE_DB_PASSWORD}@${PGHOST}:5432/postgres?sslmode=require"
+          echo "Running migrations..."
+          psql "$CONN" -f supabase/migrations/_combined.sql
+          echo "Running seed..."
+          psql "$CONN" -f supabase/seed/_phase2.sql
+          echo "Done"
